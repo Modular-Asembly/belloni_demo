@@ -5,17 +5,17 @@ from app.services.transactions.store_transaction import store_transaction
 
 router = APIRouter()
 
-class TransactionInput(BaseModel):
+class TransactionRequest(BaseModel):
     transaction_id: int
     amount: float
     timestamp: str
     status: str
 
-class TransactionOutput(BaseModel):
+class TransactionResponse(BaseModel):
     message: str
 
-@router.post("/transactions", response_model=TransactionOutput)
-async def receive_transaction(transaction: TransactionInput) -> TransactionOutput:
+@router.post("/transactions", response_model=TransactionResponse, status_code=201)
+def receive_transaction(transaction_data: TransactionRequest) -> TransactionResponse:
     """
     Receives transaction data via an HTTP request, validates it, and stores it.
 
@@ -25,14 +25,10 @@ async def receive_transaction(transaction: TransactionInput) -> TransactionOutpu
     - **status**: The current status of the transaction.
     """
     # Validate transaction data
-    validate_transaction_data(transaction.dict())
+    if not validate_transaction_data(transaction_data.dict()):
+        raise HTTPException(status_code=400, detail="Invalid transaction data")
 
     # Store transaction data
-    store_transaction(
-        transaction_id=transaction.transaction_id,
-        amount=transaction.amount,
-        timestamp=transaction.timestamp,
-        status=transaction.status
-    )
+    store_transaction(transaction_data.dict())
 
-    return TransactionOutput(message="Transaction successfully processed.")
+    return TransactionResponse(message="Transaction successfully received and stored.")

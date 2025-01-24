@@ -25,6 +25,14 @@ from app.api.receive_transaction import router
 app.include_router(router)
 from app.api.process_transaction import router
 app.include_router(router)
+from app.api.rules.create_rule import router
+app.include_router(router)
+from app.api.rules.update_rule import router
+app.include_router(router)
+from app.api.rules.delete_rule import router
+app.include_router(router)
+from app.api.rules.list_rules import router
+app.include_router(router)
 
 # Database
 
